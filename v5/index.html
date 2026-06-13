@@ -328,8 +328,11 @@ async function ptRoute(a,b){
 
 /* ---------- venue classification + Overpass fetch ---------- */
 function classifyVenue(tg){
+  // treat as a shopping mall if tagged shop=mall, OR a retail building whose name reads like a mall
+  const nm=(tg.name||"");
+  const looksMall=/\b(mall|junction|plaza|centre|center|city|point|square|hub|shoppes|emporium)\b/i.test(nm);
   if(tg.shop==="mall")return {cat:"mall",type:"Shopping mall"};
-  if(tg.shop==="department_store")return {cat:"mall",type:"Department store"};
+  if((tg.shop==="shopping_centre"||tg.building==="retail"||tg.building==="commercial")&&looksMall)return {cat:"mall",type:"Shopping mall"};
   if(tg.amenity==="cafe")return {cat:"cafe",type:"Café"};
   if(tg.amenity==="restaurant")return {cat:"restaurant",type:"Restaurant"};
   if(tg.amenity==="fast_food")return {cat:"restaurant",type:"Fast food"};
@@ -345,12 +348,14 @@ async function fetchVenues(c,radius=1800){
   const M=`(around:${Math.max(radius,3000)},${c.lat},${c.lng})`; // wider net for malls (often relations / sparse)
   const q=`[out:json][timeout:25];(`+
     `node["amenity"~"^(cafe|restaurant|fast_food|cinema|arts_centre)$"]${A};`+
-    `node["shop"~"^(mall|department_store)$"]${M};way["shop"~"^(mall|department_store)$"]${M};relation["shop"~"^(mall|department_store)$"]${M};`+
+    `node["shop"="mall"]${M};way["shop"="mall"]${M};relation["shop"="mall"]${M};`+
+    `way["shop"="shopping_centre"]${M};relation["shop"="shopping_centre"]${M};`+
+    `way["building"="retail"]["name"]${M};relation["building"="retail"]["name"]${M};`+
     `node["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
     `way["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
     `node["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
     `way["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
-  `);out center 120;`;
+  `);out center 140;`;
   try{
     const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q)});
     if(!r.ok)throw 0;
