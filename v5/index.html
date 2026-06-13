@@ -328,20 +328,36 @@ async function ptRoute(a,b){
 
 /* ---------- venue classification + Overpass fetch ---------- */
 function classifyVenue(tg){
-  // treat as a shopping mall if tagged shop=mall, OR a retail building whose name reads like a mall
   const nm=(tg.name||"");
   const looksMall=/\b(mall|junction|plaza|centre|center|city|point|square|hub|shoppes|emporium)\b/i.test(nm);
   if(tg.shop==="mall")return {cat:"mall",type:"Shopping mall"};
   if((tg.shop==="shopping_centre"||tg.building==="retail"||tg.building==="commercial")&&looksMall)return {cat:"mall",type:"Shopping mall"};
-  if(tg.amenity==="cafe")return {cat:"cafe",type:"Café"};
+
+  if(tg.amenity==="cafe"){
+    // hybrid sit-down filter: drop clear takeaway/kiosk cafés, keep & boost confirmed sit-down ones
+    const kiosk=tg.takeaway==="only"||tg.cuisine==="coffee_shop"||/bubble_tea|bubble tea/i.test((tg.cuisine||"")+nm);
+    const seated=tg.indoor_seating==="yes"||tg.outdoor_seating==="yes"||tg.takeaway==="no";
+    const hasSeatTag=tg.indoor_seating!=null||tg.outdoor_seating!=null||tg.takeaway!=null;
+    if(kiosk&&!seated)return null;                 // exclude takeaway-only / kiosks
+    return {cat:"cafe",type:"Café",seated, ambiguous:!hasSeatTag};
+  }
   if(tg.amenity==="restaurant")return {cat:"restaurant",type:"Restaurant"};
   if(tg.amenity==="fast_food")return {cat:"restaurant",type:"Fast food"};
-  if(tg.leisure==="park")return {cat:"activity",type:"Park"};
-  if(tg.leisure)return {cat:"activity",type:titleCase(tg.leisure.replace(/_/g," "))};
-  if(tg.tourism)return {cat:"activity",type:titleCase(tg.tourism.replace(/_/g," "))};
-  if(tg.amenity==="cinema")return {cat:"activity",type:"Cinema"};
-  if(tg.amenity==="arts_centre")return {cat:"activity",type:"Arts centre"};
-  return {cat:"activity",type:"Activity"};
+
+  // Activities — "doing" first: entertainment & culture (tier 3) > sports/fitness (tier 2) > parks (tier 1)
+  if(tg.amenity==="cinema")return {cat:"activity",type:"Cinema",act:3};
+  if(tg.amenity==="arts_centre")return {cat:"activity",type:"Arts centre",act:3};
+  if(tg.leisure==="bowling_alley")return {cat:"activity",type:"Bowling",act:3};
+  if(tg.leisure==="amusement_arcade"||tg.leisure==="adult_gaming_centre")return {cat:"activity",type:"Arcade",act:3};
+  if(tg.leisure==="water_park"||tg.tourism==="theme_park")return {cat:"activity",type:titleCase((tg.leisure||tg.tourism).replace(/_/g," ")),act:3};
+  if(tg.tourism==="museum"||tg.tourism==="gallery")return {cat:"activity",type:titleCase(tg.tourism),act:3};
+  if(tg.tourism==="zoo")return {cat:"activity",type:"Zoo",act:3};
+  if(tg.tourism==="attraction")return {cat:"activity",type:"Attraction",act:3};
+  if(tg.leisure==="sports_centre"||tg.leisure==="fitness_centre")return {cat:"activity",type:titleCase(tg.leisure.replace(/_/g," ")),act:2};
+  if(tg.leisure==="park")return {cat:"activity",type:"Park",act:1};
+  if(tg.leisure)return {cat:"activity",type:titleCase(tg.leisure.replace(/_/g," ")),act:1};
+  if(tg.tourism)return {cat:"activity",type:titleCase(tg.tourism.replace(/_/g," ")),act:2};
+  return {cat:"activity",type:"Activity",act:1};
 }
 async function fetchVenues(c,radius=1800){
   const A=`(around:${radius},${c.lat},${c.lng})`;
@@ -351,8 +367,8 @@ async function fetchVenues(c,radius=1800){
     `node["shop"="mall"]${M};way["shop"="mall"]${M};relation["shop"="mall"]${M};`+
     `way["shop"="shopping_centre"]${M};relation["shop"="shopping_centre"]${M};`+
     `way["building"="retail"]["name"]${M};relation["building"="retail"]["name"]${M};`+
-    `node["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
-    `way["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
+    `node["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park|amusement_arcade|adult_gaming_centre)$"]${A};`+
+    `way["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park|amusement_arcade|adult_gaming_centre)$"]${A};`+
     `node["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
     `way["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
   `);out center 140;`;
@@ -363,14 +379,13 @@ async function fetchVenues(c,radius=1800){
     let out=(d.elements||[]).map(el=>{
       const lat=el.lat??el.center?.lat,lng=el.lon??el.center?.lon,tg=el.tags||{};
       if(!lat||!tg.name)return null;
-      const cls=classifyVenue(tg);let type=cls.type;
-      if((cls.cat==="restaurant"||cls.cat==="cafe")&&tg.cuisine)type+=" · "+titleCase(tg.cuisine.split(";")[0].replace(/_/g," "));
+      const cls=classifyVenue(tg);if(!cls)return null;let type=cls.type;
+      if((cls.cat==="restaurant"||cls.cat==="cafe")&&tg.cuisine&&tg.cuisine!=="coffee_shop")type+=" · "+titleCase(tg.cuisine.split(";")[0].replace(/_/g," "));
       let pop=3.4;["website","opening_hours","phone","cuisine","stars","brand","wikidata"].forEach(k=>{if(tg[k])pop+=0.24;});
       if(tg.stars&&!isNaN(parseFloat(tg.stars)))pop=Math.min(5,parseFloat(tg.stars));
-      return {name:tg.name,type,cat:cls.cat,lat,lng,pop:Math.min(5,+pop.toFixed(1))};
+      return {name:tg.name,type,cat:cls.cat,lat,lng,pop:Math.min(5,+pop.toFixed(1)),seated:!!cls.seated,ambiguous:!!cls.ambiguous,act:cls.act||0};
     }).filter(Boolean);
     const seen=new Set();out=out.filter(v=>{const key=v.name+v.cat;if(seen.has(key))return false;seen.add(key);return true;});
-    // safety net: if OSM returned no malls, seed well-known malls within range so the category is never empty
     if(!out.some(v=>v.cat==="mall")){
       FALLBACK_VENUES.forEach(v=>{if(haversine(c,v)<10)out.push({...v,cat:"mall"});});
     }
