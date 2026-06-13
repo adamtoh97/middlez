@@ -2,7 +2,7 @@
 
 **Find the fairest place to meet.** Middlez helps a group pick a meeting spot in Singapore based on *travel time*, not geographic distance — so no one gets stuck with the longest trip.
 
-🔗 **Live:** https://adamtoh97.github.io/middlez/v3/
+🔗 **Live:** https://adamtoh97.github.io/middlez/v5/
 
 Designed by **Adam Toh**.
 
@@ -27,3 +27,6 @@ Picking the spot is a two-stage process so it's both accurate and fast:
 3. **Refine (adaptive):** if the best spot is still lopsided, a short local search probes around it with live times to tighten toward the true balance point. Already-balanced results skip this step, and a per-search cache avoids repeat lookups.
 
 This matters because Singapore's PT network is uneven — a purely distance-based optimiser would happily suggest a spot that's a quick drive for one person but a punishing multi-transfer trip for another. Scoring finalists on live times avoids that.
+
+
+v2: using 
