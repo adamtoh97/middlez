@@ -3,6 +3,7 @@
 **Find the fairest place to meet.** Middlez helps a group pick a meeting spot in Singapore based on *travel time*, not geographic distance — so no one gets stuck with the longest trip.
 
 🔗 **Live:** https://adamtoh97.github.io/middlez/v5/
+v6 is wip (pending categorisation)
 
 Designed by **Adam Toh**.
 
@@ -33,5 +34,5 @@ v2: lean version: 6 candidates, 4-direction refinement, max 2 rounds. Quickest, 
 v3: 8 candidates, 8-direction refinement, runs every time. Best at finding the fairest spot, but slowest — and it has no cache and no skip-when-balanced shortcut
 v4: 7 candidates, 8-direction refinement, but with the two free speed wins: a per-search cache and skip refinement when the result is already balanced
 v5: refine shopping mall to ignore departmental stores
-v6: changes to categories (dine-in for both restaurants/fast food/cafes, filter out takeaways)
+v6 (wip): changes to categories (dine-in for both restaurants/fast food/cafes, filter out takeaways)
 change activities category definition to entertainment and rank parks last
