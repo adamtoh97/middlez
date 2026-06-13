@@ -372,19 +372,47 @@ function objective(times){
   if(strategy==="total")return total;if(strategy==="worst")return worst;
   return total*0.55+worst*0.25+spread*0.6;
 }
-function findMeetingZone(){
-  const lats=people.map(p=>p.lat),lngs=people.map(p=>p.lng);
+function coarseCandidates(ppl){
+  const lats=ppl.map(p=>p.lat),lngs=ppl.map(p=>p.lng);
   let minLa=Math.min(...lats),maxLa=Math.max(...lats),minLo=Math.min(...lngs),maxLo=Math.max(...lngs);
-  const padLa=(maxLa-minLa)*0.25+0.005,padLo=(maxLo-minLo)*0.25+0.005;
+  const padLa=(maxLa-minLa)*0.25+0.006,padLo=(maxLo-minLo)*0.25+0.006;
   minLa-=padLa;maxLa+=padLa;minLo-=padLo;maxLo+=padLo;
-  const N=16;let best=null;
+  const N=16,arr=[];
   for(let i=0;i<=N;i++)for(let j=0;j<=N;j++){
     const c={lat:minLa+(maxLa-minLa)*i/N,lng:minLo+(maxLo-minLo)*j/N};
-    const times=people.map(p=>estTime(haversine(p,c),p.mode));
-    const score=objective(times);
-    if(!best||score<best.score)best={center:c,times,score};
+    const times=ppl.map(p=>estTime(haversine(p,c),p.mode));
+    arr.push({c,score:objective(times)});
   }
-  return best;
+  arr.sort((a,b)=>a.score-b.score);
+  return arr;
+}
+function diverseShortlist(cands,K,minKm){
+  const picked=[];
+  for(const cand of cands){
+    if(picked.length>=K)break;
+    if(picked.every(p=>haversine(p.c,cand.c)>minKm))picked.push(cand);
+  }
+  return picked.length?picked:[cands[0]];
+}
+async function realLeg(p,c){
+  if(p.mode==="drive"){const rt=await osrmRoute(p,c);if(rt)return{mins:rt.duration,route:rt.coords,real:true};}
+  if(p.mode==="pt"){const rt=await ptRoute(p,c);if(rt)return{mins:rt.duration,real:true,fare:rt.fare};}
+  return {mins:estTime(haversine(p,c),p.mode),real:false};
+}
+// Stage 1: shortlist promising spots by estimate. Stage 2: score finalists on REAL travel time.
+async function findFairZone(ppl){
+  const cands=coarseCandidates(ppl);
+  const K=Math.max(3,Math.min(8,Math.floor(24/ppl.length)));
+  const shortlist=diverseShortlist(cands,K,2.0);
+  const evals=await Promise.all(shortlist.map(async cand=>{
+    const legs=await Promise.all(ppl.map(p=>realLeg(p,cand.c)));
+    const times=legs.map(l=>l.mins);
+    // penalise spots where a drive/pt leg couldn't be routed (e.g. unreachable point)
+    let pen=0;legs.forEach((l,i)=>{if((ppl[i].mode==="drive"||ppl[i].mode==="pt")&&!l.real)pen+=30;});
+    return {c:cand.c,legs,score:objective(times)+pen};
+  }));
+  evals.sort((a,b)=>a.score-b.score);
+  return evals[0];
 }
 
 /* ---------- run ---------- */
@@ -398,19 +426,13 @@ async function run(){
   if(ready.length<2){setStatus("Need at least 2 valid locations. Check the addresses.");$("#goBtn").disabled=false;return;}
   if(ready.some(p=>!p.mode)){setStatus("Pick a transport mode for everyone.");$("#goBtn").disabled=false;return;}
 
-  setStatus("Calculating the fairest meeting zone…");
-  const zone=findMeetingZone();const center=zone.center;
-
-  setStatus("Measuring real travel times…");
-  const perPerson=[];
-  for(let i=0;i<ready.length;i++){
-    const p=ready[i];
-    let mins=estTime(haversine(p,center),p.mode),route=null,real=false,fare=null;
-    if(p.mode==="drive"){const rt=await osrmRoute(p,center);if(rt){mins=rt.duration;route=rt.coords;real=true;}}
-    else if(p.mode==="pt"){const rt=await ptRoute(p,center);if(rt){mins=rt.duration;real=true;if(rt.fare!=null)fare=rt.fare;}}
-    if(!route)route=[[p.lat,p.lng],[center.lat,center.lng]];
-    perPerson.push({...p,name:(p.name||"").trim()||("Person "+(i+1)),mins,route,real,fare});
-  }
+  setStatus("Comparing real travel times across candidate spots…");
+  const zone=await findFairZone(ready);const center=zone.c;
+  const perPerson=ready.map((p,i)=>{
+    const leg=zone.legs[i];
+    return {...p,name:(p.name||"").trim()||("Person "+(i+1)),
+      mins:leg.mins,route:leg.route||[[p.lat,p.lng],[center.lat,center.lng]],real:!!leg.real,fare:leg.fare??null};
+  });
 
   setStatus("Naming the meeting zone…");
   const areaLabel=await revGeocode(center);
