@@ -93,25 +93,18 @@
   .catchip{font-size:12.5px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-weight:600}
   .catchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
 
-  .votebanner{background:#F0FBFB;border:1px solid #CCE9EA;color:#046B70;font-size:12.5px;font-weight:600;padding:10px 12px;border-radius:10px;margin-bottom:12px;line-height:1.4}
-  .votebanner.muted{background:var(--soft);border-color:var(--line);color:var(--muted);font-weight:500}
-
   .venues{display:flex;flex-direction:column;gap:10px}
   .venue{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#fff;transition:.12s;cursor:pointer}
   .venue:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
-  .venue.lead{border-color:var(--coral);background:#FFF7F7}
   .vrank{font-size:18px;font-weight:800;color:var(--coral);width:26px;flex:0 0 auto;text-align:center}
   .vmain{flex:1;min-width:0}
   .vname{font-weight:700;font-size:14.5px}
   .vmeta{font-size:12px;color:var(--muted);margin-top:2px}
-  .catpick{font-size:9.5px;font-weight:800;color:#fff;background:var(--coral);padding:2px 7px;border-radius:99px;margin-left:6px;vertical-align:middle;text-transform:uppercase;letter-spacing:.3px}
+  .vbadge{display:inline-block;font-size:10px;font-weight:700;padding:1px 7px;border-radius:99px;background:#F0FBFB;color:var(--teal);margin-left:6px;vertical-align:middle}
   .vstats{display:flex;gap:16px;flex:0 0 auto;text-align:right}
   .vstats .b .v{font-weight:800;font-size:15px}
   .vstats .b .l{font-size:10px;color:var(--muted);text-transform:uppercase}
   .stars{color:var(--warn);font-size:12px}
-  .votebtn{flex:0 0 auto;font-size:12px;font-weight:700;padding:9px 13px;border:1px solid var(--teal);color:var(--teal);background:#fff;border-radius:10px;cursor:pointer;white-space:nowrap}
-  .votebtn.on{background:var(--teal);color:#fff}
-  .votebtn:hover{border-color:var(--teal);filter:brightness(.97)}
   @media(max-width:560px){.vstats{display:none}}
 
   footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:12.5px;text-align:center}
@@ -199,9 +192,11 @@ const MODES={
   cycle:{label:"Cycling",icon:"🚲",speed:14,detour:1.25,base:1}
 };
 const CAT_LABEL={all:"places",mall:"shopping malls",restaurant:"restaurants",cafe:"cafés",activity:"activities"};
+const CAT_ORDER=["mall","restaurant","cafe","activity"];
+const SEARCH_MSGS=["Comparing live travel times across participants…","Calculating travel times…","Searching optimal spot…"];
 const SG_CENTER=[1.3521,103.8198];
 
-/* your deployed Cloudflare Worker (OneMap proxy + votes) */
+/* your deployed Cloudflare Worker (OneMap proxy) */
 const PROXY_URL="https://middlez.adamtoh97.workers.dev";
 
 /* fallback gazetteer + sector centroids (used only if live OneMap is unreachable) */
@@ -264,7 +259,6 @@ let result=null;
 let map,layers={};
 let showRings=true, showRoutes=true, venueCat="all";
 let pid=0;
-let voteState={id:null,votes:{},mine:null,enabled:false};
 
 const $=s=>document.querySelector(s);
 const titleCase=s=>s?String(s).toLowerCase().replace(/\b\w/g,m=>m.toUpperCase()):"";
@@ -308,25 +302,6 @@ async function revGeocode(c){
     }catch(e){}
   }
   return nearestSectorName(c); // fallback when proxy unreachable
-}
-
-/* ---------- voting (shared across everyone with the same link, via Worker KV) ---------- */
-function cyrb53(str,seed=0){let h1=0xdeadbeef^seed,h2=0x41c6ce57^seed;for(let i=0,ch;i<str.length;i++){ch=str.charCodeAt(i);h1=Math.imul(h1^ch,2654435761);h2=Math.imul(h2^ch,1597334677);}h1=Math.imul(h1^(h1>>>16),2246822507);h1^=Math.imul(h2^(h2>>>13),3266489909);h2=Math.imul(h2^(h2>>>16),2246822507);h2^=Math.imul(h1^(h1>>>13),3266489909);return (4294967296*(2097151&h2)+(h1>>>0)).toString(36);}
-function currentShareId(){const m=location.hash.match(/m=([^&]+)/);return m?cyrb53(m[1]):null;}
-async function loadVotes(){
-  voteState.id=currentShareId();voteState.enabled=false;voteState.votes={};
-  if(!voteState.id||!PROXY_URL)return;
-  try{const r=await fetch(`${PROXY_URL}/votes?id=${voteState.id}`);if(r.ok){const d=await r.json();voteState.votes=d.votes||{};voteState.enabled=true;}}catch(e){}
-}
-async function castVote(name){
-  if(!voteState.enabled){toast("Voting backend isn't set up yet.");return;}
-  const prev=voteState.mine;
-  try{
-    const u=`${PROXY_URL}/votes?id=${voteState.id}&venue=${encodeURIComponent(name)}`+(prev&&prev!==name?`&prev=${encodeURIComponent(prev)}`:"");
-    const r=await fetch(u,{method:"POST"});if(!r.ok)throw 0;
-    const d=await r.json();voteState.votes=d.votes||{};voteState.mine=name;
-    renderVenueList();toast("Vote counted 🗳");
-  }catch(e){toast("Couldn't record vote.");}
 }
 
 /* ---------- OSRM real driving route ---------- */
@@ -473,8 +448,11 @@ async function run(){
   if(ready.length<2){setStatus("Need at least 2 valid locations. Check the addresses.");$("#goBtn").disabled=false;return;}
   if(ready.some(p=>!p.mode)){setStatus("Pick a transport mode for everyone.");$("#goBtn").disabled=false;return;}
 
-  setStatus("Comparing live travel times across participants…");
-  const zone=await findFairZone(ready);const center=zone.c;
+  // rotate reassuring status messages every 5s while the (longest) search step runs
+  const rot=startRotatingStatus();
+  const zone=await findFairZone(ready);
+  clearInterval(rot);
+  const center=zone.c;
   const perPerson=ready.map((p,i)=>{
     const leg=zone.legs[i];
     return {...p,name:(p.name||"").trim()||("Person "+(i+1)),
@@ -498,20 +476,23 @@ async function run(){
   result={center,perPerson,venuesAll:scored,zone,areaLabel};
   venueCat="all";applyVenueFilter();
   $("#goBtn").disabled=false;setStatus("");
-  updateHash();await loadVotes();renderResults();
+  renderResults();updateHash();
 }
 
-/* ALL view: guarantee the best of each category appears, even if it wouldn't make the overall top */
+/* Improvement 1: under "All", guarantee the best option from EACH category appears
+   (even if it wouldn't make the global top list), then fill remaining slots by score. */
 function applyVenueFilter(){
   if(!result)return;
-  const all=result.venuesAll.slice().sort((a,b)=>b.score-a.score);
-  if(venueCat!=="all"){result.venues=all.filter(v=>v.cat===venueCat).slice(0,8);result.catPicks=new Set();return;}
-  const cats=["mall","restaurant","cafe","activity"];
-  const picked=[],used=new Set(),catPicks=new Set();
-  cats.forEach(cat=>{const best=all.find(v=>v.cat===cat);if(best&&!used.has(best.name)){picked.push(best);used.add(best.name);catPicks.add(best.name);}});
-  for(const v of all){if(picked.length>=9)break;if(!used.has(v.name)){picked.push(v);used.add(v.name);}}
+  const byScore=result.venuesAll.slice().sort((a,b)=>b.score-a.score);
+  if(venueCat!=="all"){
+    result.venues=byScore.filter(v=>v.cat===venueCat).slice(0,8);
+    return;
+  }
+  const picked=[];
+  CAT_ORDER.forEach(cat=>{const top=byScore.find(v=>v.cat===cat);if(top&&!picked.includes(top)){top._rep=cat;picked.push(top);}});
+  for(const v of byScore){if(picked.length>=8)break;if(!picked.includes(v))picked.push(v);}
   picked.sort((a,b)=>b.score-a.score);
-  result.venues=picked;result.catPicks=catPicks;
+  result.venues=picked;
 }
 
 /* ---------- render ---------- */
@@ -557,44 +538,22 @@ function renderResults(){
 }
 
 function renderVenueList(){
-  const el=$("#venues");
-  if(!result.venues.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px">No ${CAT_LABEL[venueCat]} found within walking range of the meeting zone.</div>`;return;}
-  const votes=voteState.votes||{};
-  // when voting is active, rank by votes first, then by match score
-  const list=result.venues.slice().sort((a,b)=>{
-    if(voteState.enabled){const va=votes[a.name]||0,vb=votes[b.name]||0;if(vb!==va)return vb-va;}
-    return b.score-a.score;
-  });
-  let topName=null,topN=0;for(const n in votes){if(votes[n]>topN){topN=votes[n];topName=n;}}
-  let head="";
-  if(voteState.enabled){
-    head = topN>0
-      ? `<div class="votebanner">🏆 Group's pick: <b>${topName}</b> · ${topN} vote${topN>1?"s":""}. Tap a place to vote (everyone with this link votes here).</div>`
-      : `<div class="votebanner muted">🗳 Tap “Vote” on a place — everyone who opens this link votes, and the group favourite rises to the top.</div>`;
-  }
-  el.innerHTML=head+list.map((v,i)=>{
+  const venues=result.venues,el=$("#venues");
+  if(!venues.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px">No ${CAT_LABEL[venueCat]} found within walking range of the meeting zone.</div>`;return;}
+  el.innerHTML=venues.map((v,i)=>{
     const stars="★".repeat(Math.round(v.pop))+"☆".repeat(5-Math.round(v.pop));
-    const vc=votes[v.name]||0;
-    const isCat=venueCat==="all"&&result.catPicks&&result.catPicks.has(v.name);
-    const isLead=voteState.enabled&&topN>0&&v.name===topName;
-    const voteBtn=voteState.enabled?`<button class="votebtn ${voteState.mine===v.name?'on':''}" data-vote="${encodeURIComponent(v.name)}">${voteState.mine===v.name?"✓ Voted":"Vote"}${vc?` · ${vc}`:""}</button>`:"";
-    return `<div class="venue ${isLead?'lead':''}" data-vi="${i}">
-      <div class="vrank">${isLead?"🏆":i+1}</div>
+    const badge=(venueCat==="all"&&v._rep)?`<span class="vbadge">nearest ${CAT_LABEL[v._rep].replace(/s$/,"")}</span>`:"";
+    return `<div class="venue" data-vi="${i}">
+      <div class="vrank">${i+1}</div>
       <div class="vmain">
-        <div class="vname">${v.name}${isCat?` <span class="catpick">nearest ${CAT_LABEL[v.cat].replace(/s$/,"")}</span>`:""}</div>
+        <div class="vname">${v.name}${badge}</div>
         <div class="vmeta">${v.type} · ${(v.distMid*1000).toFixed(0)} m from zone · longest trip ${fmtMin(Math.max(...v.ptimes))}</div>
       </div>
       <div class="vstats">
         <div class="b"><div class="v stars">${stars}</div><div class="l">${v.pop.toFixed(1)} popularity</div></div>
         <div class="b"><div class="v">${Math.round(v.score)}</div><div class="l">Match</div></div>
-      </div>
-      ${voteBtn}
-    </div>`;}).join("");
-  document.querySelectorAll(".venue").forEach(elm=>elm.onclick=ev=>{
-    if(ev.target.closest(".votebtn"))return;
-    const v=list[+elm.dataset.vi];if(map){map.setView([v.lat,v.lng],16);}
-  });
-  document.querySelectorAll(".votebtn").forEach(b=>b.onclick=ev=>{ev.stopPropagation();castVote(decodeURIComponent(b.dataset.vote));});
+      </div></div>`;}).join("");
+  document.querySelectorAll(".venue").forEach(elm=>elm.onclick=()=>{const v=venues[+elm.dataset.vi];if(map){map.setView([v.lat,v.lng],16);layers.venueMk&&layers.venueMk[+elm.dataset.vi]&&layers.venueMk[+elm.dataset.vi].openPopup();}});
 }
 
 /* ---------- map ---------- */
@@ -631,7 +590,7 @@ function drawMap(refit){
     .addTo(map).bindPopup(`<b>Fairest meeting zone</b><br>${result.areaLabel||""}`);
   grp.push([center.lat,center.lng]);
   layers.venueMk=venues.map((v,i)=>L.circleMarker([v.lat,v.lng],{radius:6,color:"#fff",weight:2,fillColor:"#222",fillOpacity:1})
-    .addTo(map).bindPopup(`<b>${v.name}</b><br>${v.type}<br>★ ${v.pop.toFixed(1)} · match ${Math.round(v.score)}`));
+    .addTo(map).bindPopup(`<b>${i+1}. ${v.name}</b><br>${v.type}<br>★ ${v.pop.toFixed(1)} · match ${Math.round(v.score)}`));
   if(refit&&grp.length)map.fitBounds(grp,{padding:[50,50],maxZoom:15});
   setTimeout(()=>map.invalidateSize(),60);
 }
@@ -685,6 +644,7 @@ function renderPeople(){
   $("#addBtn").disabled=people.length>=10;
 }
 function setStatus(t){$("#status").textContent=t;}
+function startRotatingStatus(){let i=0;setStatus(SEARCH_MSGS[0]);return setInterval(()=>{i=(i+1)%SEARCH_MSGS.length;setStatus(SEARCH_MSGS[i]);},5000);}
 
 /* ---------- toggles / category / share ---------- */
 $("#addBtn").onclick=()=>addPerson();
@@ -706,7 +666,7 @@ function updateHash(){
 $("#shareBtn").onclick=()=>{
   if(!result){toast("Run a search first to create a link.");return;}
   updateHash();const url=location.href;
-  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast("Link copied — others can view & vote 🔗")).catch(()=>toast("Copy this URL from the address bar"));}
+  if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast("Link copied — anyone can open it 🔗")).catch(()=>toast("Copy this URL from the address bar"));}
   else toast("Copy the URL from the address bar");
 };
 async function loadHash(){
