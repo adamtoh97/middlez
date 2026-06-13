@@ -91,6 +91,9 @@
   .metric .l{font-size:11.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.4px}
   .fairbar{height:8px;border-radius:99px;background:var(--line);margin-top:14px;overflow:hidden}
   .fairbar > i{display:block;height:100%;background:linear-gradient(90deg,var(--good),var(--teal))}
+  .srcnote{margin-top:12px;font-size:12px;padding:8px 11px;border-radius:9px;font-weight:600;line-height:1.4}
+  .srcnote.ok{background:#ECFDF5;color:#047857}
+  .srcnote.warn{background:#FFF7ED;color:#B45309}
 
   .sec-title{font-size:16px;font-weight:800;margin:22px 0 12px;letter-spacing:-.3px}
   .ptimes{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
@@ -315,6 +318,19 @@ async function osrmRoute(a,b){
   }catch(e){return null;}
 }
 
+/* ---------- OneMap public-transport route via your Cloudflare proxy ---------- */
+const PROXY_URL="https://middlez.adamtoh97.workers.dev"; // your deployed Worker
+async function ptRoute(a,b){
+  if(!PROXY_URL)return null;
+  try{
+    const u=`${PROXY_URL}/route?start=${a.lat},${a.lng}&end=${b.lat},${b.lng}&mode=pt`;
+    const r=await fetch(u);if(!r.ok)throw 0;
+    const d=await r.json();
+    if(d&&d.durationMin!=null)return {duration:d.durationMin,fare:d.fare};
+    throw 0;
+  }catch(e){return null;}
+}
+
 /* ---------- Overpass venues ---------- */
 async function fetchVenues(c,radius=1400){
   const q=`[out:json][timeout:25];(node["amenity"~"cafe|restaurant|fast_food"](around:${radius},${c.lat},${c.lng});node["shop"="mall"](around:${radius},${c.lat},${c.lng});way["shop"="mall"](around:${radius},${c.lat},${c.lng}););out center 60;`;
@@ -385,13 +401,16 @@ async function run(){
   setStatus("Measuring real travel times…");
   const perPerson=[];
   for(const p of ready){
-    let mins=estTime(haversine(p,center),p.mode), route=null, real=false;
+    let mins=estTime(haversine(p,center),p.mode), route=null, real=false, fare=null;
     if(p.mode==="drive"){
       const rt=await osrmRoute(p,center);
       if(rt){mins=rt.duration;route=rt.coords;real=true;}
+    }else if(p.mode==="pt"){
+      const rt=await ptRoute(p,center);
+      if(rt){mins=rt.duration;real=true;if(rt.fare!=null)fare=rt.fare;}
     }
     if(!route)route=[[p.lat,p.lng],[center.lat,center.lng]];
-    perPerson.push({...p,mins,route,real});
+    perPerson.push({...p,mins,route,real,fare});
   }
 
   setStatus("Finding venues nearby…");
@@ -453,7 +472,7 @@ function renderResults(){
       <div class="nm"><span class="swatch" style="background:${p.color}"></span>${p.name}
         <span class="tag" style="background:${col}">${p.mins>=worst-0.5?"furthest":ratio<.34?"closest":""}</span></div>
       <div class="mn" style="color:${col}">${fmtMin(p.mins)}</div>
-      <div class="md">${MODES[p.mode].icon} ${MODES[p.mode].label}${p.real?" · live route":" · est."}</div>
+      <div class="md">${MODES[p.mode].icon} ${MODES[p.mode].label}${p.real?" · live":" · est."}${p.fare!=null?" · $"+p.fare.toFixed(2):""}</div>
     </div>`;
   }).join("");
 
