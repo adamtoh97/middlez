@@ -329,6 +329,7 @@ async function ptRoute(a,b){
 /* ---------- venue classification + Overpass fetch ---------- */
 function classifyVenue(tg){
   if(tg.shop==="mall")return {cat:"mall",type:"Shopping mall"};
+  if(tg.shop==="department_store")return {cat:"mall",type:"Department store"};
   if(tg.amenity==="cafe")return {cat:"cafe",type:"Café"};
   if(tg.amenity==="restaurant")return {cat:"restaurant",type:"Restaurant"};
   if(tg.amenity==="fast_food")return {cat:"restaurant",type:"Fast food"};
@@ -339,16 +340,17 @@ function classifyVenue(tg){
   if(tg.amenity==="arts_centre")return {cat:"activity",type:"Arts centre"};
   return {cat:"activity",type:"Activity"};
 }
-async function fetchVenues(c,radius=1600){
+async function fetchVenues(c,radius=1800){
   const A=`(around:${radius},${c.lat},${c.lng})`;
+  const M=`(around:${Math.max(radius,3000)},${c.lat},${c.lng})`; // wider net for malls (often relations / sparse)
   const q=`[out:json][timeout:25];(`+
     `node["amenity"~"^(cafe|restaurant|fast_food|cinema|arts_centre)$"]${A};`+
-    `node["shop"="mall"]${A};way["shop"="mall"]${A};`+
+    `node["shop"~"^(mall|department_store)$"]${M};way["shop"~"^(mall|department_store)$"]${M};relation["shop"~"^(mall|department_store)$"]${M};`+
     `node["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
     `way["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
     `node["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
     `way["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
-  `);out center 100;`;
+  `);out center 120;`;
   try{
     const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q)});
     if(!r.ok)throw 0;
@@ -363,9 +365,13 @@ async function fetchVenues(c,radius=1600){
       return {name:tg.name,type,cat:cls.cat,lat,lng,pop:Math.min(5,+pop.toFixed(1))};
     }).filter(Boolean);
     const seen=new Set();out=out.filter(v=>{const key=v.name+v.cat;if(seen.has(key))return false;seen.add(key);return true;});
+    // safety net: if OSM returned no malls, seed well-known malls within range so the category is never empty
+    if(!out.some(v=>v.cat==="mall")){
+      FALLBACK_VENUES.forEach(v=>{if(haversine(c,v)<10)out.push({...v,cat:"mall"});});
+    }
     if(out.length)return out;throw 0;
   }catch(e){
-    return FALLBACK_VENUES.map(v=>({...v,cat:"mall"})).filter(v=>haversine(c,v)<6);
+    return FALLBACK_VENUES.map(v=>({...v,cat:"mall"})).filter(v=>haversine(c,v)<10);
   }
 }
 
@@ -448,22 +454,20 @@ async function run(){
   if(ready.length<2){setStatus("Need at least 2 valid locations. Check the addresses.");$("#goBtn").disabled=false;return;}
   if(ready.some(p=>!p.mode)){setStatus("Pick a transport mode for everyone.");$("#goBtn").disabled=false;return;}
 
-  // rotate reassuring status messages every 5s while the (longest) search step runs
+  // rotate reassuring messages every 5s across the WHOLE heavy phase so it never looks frozen
   const rot=startRotatingStatus();
-  const zone=await findFairZone(ready);
-  clearInterval(rot);
-  const center=zone.c;
-  const perPerson=ready.map((p,i)=>{
-    const leg=zone.legs[i];
-    return {...p,name:(p.name||"").trim()||("Person "+(i+1)),
-      mins:leg.mins,route:leg.route||[[p.lat,p.lng],[center.lat,center.lng]],real:!!leg.real,fare:leg.fare??null};
-  });
-
-  setStatus("Naming the meeting zone…");
-  const areaLabel=await revGeocode(center);
-
-  setStatus("Finding places nearby…");
-  const venuesRaw=await fetchVenues(center);
+  let zone,center,perPerson,areaLabel,venuesRaw;
+  try{
+    zone=await findFairZone(ready);
+    center=zone.c;
+    perPerson=ready.map((p,i)=>{
+      const leg=zone.legs[i];
+      return {...p,name:(p.name||"").trim()||("Person "+(i+1)),
+        mins:leg.mins,route:leg.route||[[p.lat,p.lng],[center.lat,center.lng]],real:!!leg.real,fare:leg.fare??null};
+    });
+    areaLabel=await revGeocode(center);
+    venuesRaw=await fetchVenues(center);
+  }finally{ clearInterval(rot); }
   const scored=venuesRaw.map(v=>{
     const ptimes=ready.map(p=>estTime(haversine(p,v),p.mode));
     const total=ptimes.reduce((a,b)=>a+b,0),worst=Math.max(...ptimes),spread=worst-Math.min(...ptimes);
