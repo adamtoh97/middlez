@@ -1,4 +1,4 @@
-<!-- Middlez — fairest meeting point in Singapore by travel time -->
+<!-- Middlez v2 — fairest meeting point in Singapore by travel time -->
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
@@ -15,7 +15,6 @@
   a{color:var(--teal)}
   .wrap{max-width:1200px;margin:0 auto;padding:0 20px}
 
-  /* Hero */
   .hero{padding:56px 0 30px;text-align:center}
   .brand{display:inline-flex;align-items:center;gap:10px;font-weight:800;font-size:22px;letter-spacing:-.5px;margin-bottom:26px}
   .brand .dot{width:26px;height:26px;border-radius:50%;background:var(--coral);display:inline-flex;align-items:center;justify-content:center;color:#fff;font-size:15px}
@@ -23,7 +22,6 @@
   h1 .hl{color:var(--coral)}
   .sub{font-size:18px;color:var(--muted);max-width:620px;margin:0 auto;line-height:1.5}
 
-  /* Layout */
   .app{display:grid;grid-template-columns:380px 1fr;gap:22px;margin:34px 0 60px;align-items:start}
   @media(max-width:920px){.app{grid-template-columns:1fr}h1{font-size:34px}}
   .panel{background:var(--bg);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow)}
@@ -31,7 +29,6 @@
   .panel .hint{font-size:12.5px;color:var(--muted);padding:4px 18px 0}
   .pbody{padding:16px 18px}
 
-  /* Participant rows */
   .pp{border:1px solid var(--line);border-radius:12px;padding:12px;margin-bottom:12px;position:relative;background:var(--soft)}
   .pp .toprow{display:flex;gap:8px;align-items:center;margin-bottom:8px}
   .swatch{width:14px;height:14px;border-radius:50%;flex:0 0 auto}
@@ -46,7 +43,6 @@
   .moderow{display:flex;gap:8px;margin-top:8px}
   .moderow select{flex:1}
 
-  /* Autocomplete */
   .ac{position:absolute;left:0;right:0;top:100%;z-index:1200;background:#fff;border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);margin-top:4px;max-height:230px;overflow:auto}
   .ac div{padding:9px 11px;font-size:12.5px;cursor:pointer;border-bottom:1px solid var(--soft)}
   .ac div:hover{background:var(--soft)}
@@ -57,20 +53,11 @@
   .addbtn:hover{border-color:var(--coral);color:var(--coral)}
   .addbtn:disabled{opacity:.4;cursor:not-allowed}
 
-  /* Strategy */
-  .strat{display:flex;flex-direction:column;gap:8px;margin-top:6px}
-  .strat label{display:flex;gap:10px;align-items:flex-start;border:1px solid var(--line);border-radius:11px;padding:11px 12px;cursor:pointer;font-size:13px}
-  .strat label.active{border-color:var(--coral);background:#FFF5F5}
-  .strat .st{font-weight:700;display:block;margin-bottom:1px}
-  .strat .sd{color:var(--muted);font-size:11.5px}
-  .strat input{margin-top:3px;accent-color:var(--coral)}
-
-  .go{width:100%;margin-top:14px;padding:14px;background:var(--coral);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
+  .go{width:100%;margin-top:0;padding:14px;background:var(--coral);color:#fff;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer;transition:.15s}
   .go:hover{background:var(--coral-d)}
   .go:disabled{opacity:.5;cursor:not-allowed}
   .status{font-size:12.5px;color:var(--muted);text-align:center;margin-top:10px;min-height:16px}
 
-  /* Right column */
   #map{height:430px;border-radius:var(--r);border:1px solid var(--line);box-shadow:var(--shadow);z-index:1}
   .toolbar{display:flex;flex-wrap:wrap;gap:8px;justify-content:space-between;align-items:center;margin-bottom:12px}
   .toolbar .left{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
@@ -82,7 +69,6 @@
   .placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:430px;color:var(--muted);text-align:center;border:1px dashed var(--line);border-radius:var(--r);background:var(--soft)}
   .placeholder svg{margin-bottom:10px}
 
-  /* Result cards */
   .results{margin-top:18px;display:none}
   .summary{background:linear-gradient(135deg,#FFF5F5,#fff);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow);margin-bottom:18px}
   .summary .area{font-size:20px;font-weight:800;letter-spacing:-.4px}
@@ -103,9 +89,12 @@
   .ptcard .md{font-size:11.5px;color:var(--muted)}
   .ptcard .tag{font-size:10px;padding:2px 7px;border-radius:99px;color:#fff;margin-left:auto}
 
-  /* Venues */
+  .catbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
+  .catchip{font-size:12.5px;padding:7px 13px;border:1px solid var(--line);border-radius:999px;background:#fff;cursor:pointer;font-weight:600}
+  .catchip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+
   .venues{display:flex;flex-direction:column;gap:10px}
-  .venue{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#fff;transition:.12s}
+  .venue{display:flex;gap:14px;align-items:center;border:1px solid var(--line);border-radius:13px;padding:13px 15px;background:#fff;transition:.12s;cursor:pointer}
   .venue:hover{box-shadow:var(--shadow);transform:translateY(-1px)}
   .vrank{font-size:18px;font-weight:800;color:var(--coral);width:26px;flex:0 0 auto;text-align:center}
   .vmain{flex:1;min-width:0}
@@ -118,6 +107,7 @@
   @media(max-width:560px){.vstats{display:none}}
 
   footer{border-top:1px solid var(--line);padding:24px 0;color:var(--muted);font-size:12.5px;text-align:center}
+  footer .by{margin-top:8px;font-weight:700;color:var(--ink);font-size:13px}
   .leaflet-popup-content{font-size:12.5px}
   .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:11px 18px;border-radius:10px;font-size:13px;z-index:3000;opacity:0;transition:.25s;pointer-events:none}
   .toast.show{opacity:1}
@@ -131,11 +121,10 @@
   </div>
 
   <div class="app">
-    <!-- LEFT: inputs -->
     <div>
       <div class="panel" style="margin-bottom:18px">
         <h2>Who's meeting?</h2>
-        <div class="hint">Add 2–10 people. Enter a postal code or address — suggestions are live from Singapore's OneMap.</div>
+        <div class="hint">Add 2–10 people. Enter a postal code or address, pick a transport mode — suggestions are live from Singapore's OneMap.</div>
         <div class="pbody">
           <div id="people"></div>
           <button class="addbtn" id="addBtn">＋ Add participant</button>
@@ -144,13 +133,12 @@
 
       <div class="panel">
         <div class="pbody" style="padding-top:18px">
-          <button class="go" id="goBtn" style="margin-top:0">Find the fairest spot</button>
+          <button class="go" id="goBtn">Find the fairest spot</button>
           <div class="status" id="status">Balanced fairness: low total time + a small gap between people.</div>
         </div>
       </div>
     </div>
 
-    <!-- RIGHT: map + results -->
     <div>
       <div class="toolbar">
         <div class="left">
@@ -171,7 +159,14 @@
         <div class="summary" id="summary"></div>
         <div class="sec-title">Travel time for each person</div>
         <div class="ptimes" id="ptimes"></div>
-        <div class="sec-title">Recommended venues near the meeting zone</div>
+        <div class="sec-title">Recommended places near the meeting zone</div>
+        <div class="catbar" id="catbar">
+          <span class="catchip on" data-c="all">All</span>
+          <span class="catchip" data-c="mall">🛍 Shopping malls</span>
+          <span class="catchip" data-c="restaurant">🍽 Restaurants</span>
+          <span class="catchip" data-c="cafe">☕ Cafés</span>
+          <span class="catchip" data-c="activity">🎟 Activities</span>
+        </div>
         <div class="venues" id="venues"></div>
       </div>
     </div>
@@ -181,6 +176,7 @@
     Middlez · Geocoding by <a href="https://www.onemap.gov.sg" target="_blank" rel="noopener">OneMap</a> (Singapore Land Authority) ·
     Road routing by <a href="https://project-osrm.org" target="_blank" rel="noopener">OSRM</a> ·
     Venues from <a href="https://www.openstreetmap.org" target="_blank" rel="noopener">OpenStreetMap</a>. No account needed.
+    <div class="by">Designed by Adam Toh</div>
   </footer>
 </div>
 <div class="toast" id="toast"></div>
@@ -194,34 +190,31 @@ const MODES={
   walk:{label:"Walking",icon:"🚶",speed:4.8,detour:1.25,base:0},
   cycle:{label:"Cycling",icon:"🚲",speed:14,detour:1.25,base:1}
 };
+const CAT_LABEL={all:"places",mall:"shopping malls",restaurant:"restaurants",cafe:"cafés",activity:"activities"};
 const SG_CENTER=[1.3521,103.8198];
 
-/* fallback gazetteer (used only if live OneMap is unreachable) */
+/* your deployed Cloudflare Worker (OneMap proxy) */
+const PROXY_URL="https://middlez.adamtoh97.workers.dev";
+
+/* fallback gazetteer + sector centroids (used only if live OneMap is unreachable) */
 const FALLBACK_PLACES={
-  "238801":{lat:1.3041,lng:103.8320,label:"ION Orchard, 2 Orchard Turn (238801)"},
+  "238801":{lat:1.3041,lng:103.8320,label:"ION Orchard (238801)"},
   "569880":{lat:1.3690,lng:103.8475,label:"Ang Mo Kio area (569880)"},
   "528833":{lat:1.3496,lng:103.9568,label:"Tampines area (528833)"},
-  "orchard":{lat:1.3041,lng:103.8320,label:"Orchard"},
-  "marina bay":{lat:1.2830,lng:103.8607,label:"Marina Bay"},
-  "jurong east":{lat:1.3331,lng:103.7422,label:"Jurong East"},
-  "tampines":{lat:1.3540,lng:103.9450,label:"Tampines"},
-  "woodlands":{lat:1.4360,lng:103.7862,label:"Woodlands"},
-  "bishan":{lat:1.3510,lng:103.8485,label:"Bishan"},
-  "bedok":{lat:1.3240,lng:103.9300,label:"Bedok"},
-  "clementi":{lat:1.3150,lng:103.7650,label:"Clementi"},
-  "serangoon":{lat:1.3500,lng:103.8730,label:"Serangoon"},
-  "bugis":{lat:1.3000,lng:103.8560,label:"Bugis"},
+  "orchard":{lat:1.3041,lng:103.8320,label:"Orchard"},"marina bay":{lat:1.2830,lng:103.8607,label:"Marina Bay"},
+  "jurong east":{lat:1.3331,lng:103.7422,label:"Jurong East"},"tampines":{lat:1.3540,lng:103.9450,label:"Tampines"},
+  "woodlands":{lat:1.4360,lng:103.7862,label:"Woodlands"},"bishan":{lat:1.3510,lng:103.8485,label:"Bishan"},
+  "bedok":{lat:1.3240,lng:103.9300,label:"Bedok"},"clementi":{lat:1.3150,lng:103.7650,label:"Clementi"},
+  "serangoon":{lat:1.3500,lng:103.8730,label:"Serangoon"},"bugis":{lat:1.3000,lng:103.8560,label:"Bugis"},
   "raffles place":{lat:1.2840,lng:103.8510,label:"Raffles Place"}
 };
-/* offline postal-sector centroids: first 2 digits of any SG postal code -> approx area */
 const SECTORS={
  "01":[1.281,103.850,"Raffles Place/Marina"],"02":[1.281,103.850,"Raffles Place/Marina"],"03":[1.281,103.850,"Raffles Place/Marina"],"04":[1.281,103.850,"Raffles Place/Marina"],"05":[1.281,103.850,"Raffles Place/Marina"],"06":[1.281,103.850,"Raffles Place/Marina"],
  "07":[1.276,103.845,"Tanjong Pagar"],"08":[1.276,103.845,"Tanjong Pagar"],
  "09":[1.268,103.820,"HarbourFront/Telok Blangah"],"10":[1.268,103.820,"HarbourFront/Telok Blangah"],
  "11":[1.290,103.780,"Clementi/Pasir Panjang"],"12":[1.290,103.780,"Clementi/Pasir Panjang"],"13":[1.290,103.780,"Clementi/Pasir Panjang"],
  "14":[1.287,103.820,"Queenstown/Tiong Bahru"],"15":[1.287,103.820,"Queenstown/Tiong Bahru"],"16":[1.287,103.820,"Queenstown/Tiong Bahru"],
- "17":[1.292,103.853,"City Hall/Beach Rd"],
- "18":[1.302,103.860,"Bugis/Golden Mile"],"19":[1.302,103.860,"Bugis/Golden Mile"],
+ "17":[1.292,103.853,"City Hall/Beach Rd"],"18":[1.302,103.860,"Bugis/Golden Mile"],"19":[1.302,103.860,"Bugis/Golden Mile"],
  "20":[1.308,103.855,"Little India"],"21":[1.308,103.855,"Little India"],
  "22":[1.304,103.836,"Orchard/River Valley"],"23":[1.304,103.836,"Orchard/River Valley"],
  "24":[1.320,103.805,"Bukit Timah/Holland"],"25":[1.320,103.805,"Bukit Timah/Holland"],"26":[1.320,103.805,"Bukit Timah/Holland"],"27":[1.320,103.805,"Bukit Timah/Holland"],
@@ -254,57 +247,58 @@ const FALLBACK_VENUES=[
   {name:"JEM",type:"Shopping mall",lat:1.3331,lng:103.7437,pop:4.4},
   {name:"Plaza Singapura",type:"Shopping mall",lat:1.3008,lng:103.8454,pop:4.3},
   {name:"Suntec City",type:"Shopping mall",lat:1.2954,lng:103.8589,pop:4.3},
-  {name:"NEX",type:"Shopping mall",lat:1.3503,lng:103.8720,pop:4.4},
-  {name:"Causeway Point",type:"Shopping mall",lat:1.4360,lng:103.7862,pop:4.4},
-  {name:"Northpoint City",type:"Shopping mall",lat:1.4294,lng:103.8350,pop:4.3}
+  {name:"NEX",type:"Shopping mall",lat:1.3503,lng:103.8720,pop:4.4}
 ];
 
-let people=[];        // {id,name,query,mode,lat,lng,label,resolved}
+let people=[];
 let strategy="balanced";
-let result=null;      // {center,perPerson,venues,...}
+let result=null;
 let map,layers={};
-let showRings=true, showRoutes=true;
+let showRings=true, showRoutes=true, venueCat="all";
 let pid=0;
 
-/* ---------- helpers ---------- */
 const $=s=>document.querySelector(s);
+const titleCase=s=>s?String(s).toLowerCase().replace(/\b\w/g,m=>m.toUpperCase()):"";
 function toast(m){const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove("show"),2200);}
 function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180,
   la1=a.lat*Math.PI/180,la2=b.lat*Math.PI/180;
-  const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;
-  return R*2*Math.asin(Math.sqrt(h));}
-function estTime(km,mode){const m=MODES[mode];return m.base + (km*m.detour)/m.speed*60;} // minutes
+  const h=Math.sin(dLat/2)**2+Math.cos(la1)*Math.cos(la2)*Math.sin(dLng/2)**2;return R*2*Math.asin(Math.sqrt(h));}
+function estTime(km,mode){const m=MODES[mode]||MODES.drive;return m.base+(km*m.detour)/m.speed*60;}
 function fmtMin(x){return Math.round(x)+" min";}
 function debounce(fn,ms){let t;return(...a)=>{clearTimeout(t);t=setTimeout(()=>fn(...a),ms);};}
+function nearestSectorName(c){let best=null;for(const k in SECTORS){const s=SECTORS[k];const d=haversine(c,{lat:s[0],lng:s[1]});if(!best||d<best.d)best={d,name:s[2]};}return best?best.name:"this area";}
 
 /* ---------- OneMap geocoding (free, no auth) ---------- */
 async function onemapSearch(q){
   if(!q||q.trim().length<2)return [];
   try{
     const url="https://www.onemap.gov.sg/api/common/elastic/search?searchVal="+encodeURIComponent(q)+"&returnGeom=Y&getAddrDetails=Y&pageNum=1";
-    const r=await fetch(url);
-    if(!r.ok)throw 0;
+    const r=await fetch(url);if(!r.ok)throw 0;
     const d=await r.json();
     return (d.results||[]).slice(0,6).map(x=>({
       title:x.BUILDING&&x.BUILDING!=="NIL"?x.BUILDING:(x.SEARCHVAL||x.ROAD_NAME),
-      subtitle:x.ADDRESS||x.ROAD_NAME,
-      lat:parseFloat(x.LATITUDE),lng:parseFloat(x.LONGITUDE)
+      subtitle:x.ADDRESS||x.ROAD_NAME,lat:parseFloat(x.LATITUDE),lng:parseFloat(x.LONGITUDE)
     })).filter(x=>!isNaN(x.lat));
   }catch(e){
-    // network blocked (e.g. chat preview) -> offline geocoding
     const k=q.trim().toLowerCase();
-    const pm=k.match(/^(\d{2})\d{4}$/);            // any 6-digit postal -> sector centroid
-    if(pm&&SECTORS[pm[1]]){const s=SECTORS[pm[1]];
-      return [{title:"Postal "+q.trim()+" — "+s[2],subtitle:"Area-level estimate (offline)",lat:s[0],lng:s[1]}];}
-    const hits=[];
-    if(FALLBACK_PLACES[k])hits.push(FALLBACK_PLACES[k]);
+    const pm=k.match(/^(\d{2})\d{4}$/);
+    if(pm&&SECTORS[pm[1]]){const s=SECTORS[pm[1]];return [{title:"Postal "+q.trim()+" — "+s[2],subtitle:"Area-level estimate (offline)",lat:s[0],lng:s[1]}];}
+    const hits=[];if(FALLBACK_PLACES[k])hits.push(FALLBACK_PLACES[k]);
     for(const key in FALLBACK_PLACES){if(key.includes(k)&&!hits.includes(FALLBACK_PLACES[key]))hits.push(FALLBACK_PLACES[key]);}
     return hits.slice(0,6).map(h=>({title:h.label,subtitle:"Area-level estimate (offline)",lat:h.lat,lng:h.lng}));
   }
 }
-async function resolveOne(q){
-  const r=await onemapSearch(q);
-  return r[0]||null;
+async function resolveOne(q){const r=await onemapSearch(q);return r[0]||null;}
+
+/* ---------- reverse geocode meeting zone -> street + postal (via proxy) ---------- */
+async function revGeocode(c){
+  if(PROXY_URL){
+    try{
+      const r=await fetch(`${PROXY_URL}/revgeo?location=${c.lat},${c.lng}`);
+      if(r.ok){const d=await r.json();if(d&&d.label)return d.label;}
+    }catch(e){}
+  }
+  return nearestSectorName(c); // fallback when proxy unreachable
 }
 
 /* ---------- OSRM real driving route ---------- */
@@ -313,13 +307,11 @@ async function osrmRoute(a,b){
     const url=`https://router.project-osrm.org/route/v1/driving/${a.lng},${a.lat};${b.lng},${b.lat}?overview=full&geometries=geojson`;
     const r=await fetch(url);if(!r.ok)throw 0;
     const d=await r.json();const rt=d.routes&&d.routes[0];if(!rt)throw 0;
-    return {duration:rt.duration/60, distance:rt.distance/1000,
-      coords:rt.geometry.coordinates.map(c=>[c[1],c[0]])};
+    return {duration:rt.duration/60,distance:rt.distance/1000,coords:rt.geometry.coordinates.map(c=>[c[1],c[0]])};
   }catch(e){return null;}
 }
 
-/* ---------- OneMap public-transport route via your Cloudflare proxy ---------- */
-const PROXY_URL="https://middlez.adamtoh97.workers.dev"; // your deployed Worker
+/* ---------- OneMap public-transport route via your proxy ---------- */
 async function ptRoute(a,b){
   if(!PROXY_URL)return null;
   try{
@@ -331,40 +323,54 @@ async function ptRoute(a,b){
   }catch(e){return null;}
 }
 
-/* ---------- Overpass venues ---------- */
-async function fetchVenues(c,radius=1400){
-  const q=`[out:json][timeout:25];(node["amenity"~"cafe|restaurant|fast_food"](around:${radius},${c.lat},${c.lng});node["shop"="mall"](around:${radius},${c.lat},${c.lng});way["shop"="mall"](around:${radius},${c.lat},${c.lng}););out center 60;`;
+/* ---------- venue classification + Overpass fetch ---------- */
+function classifyVenue(tg){
+  if(tg.shop==="mall")return {cat:"mall",type:"Shopping mall"};
+  if(tg.amenity==="cafe")return {cat:"cafe",type:"Café"};
+  if(tg.amenity==="restaurant")return {cat:"restaurant",type:"Restaurant"};
+  if(tg.amenity==="fast_food")return {cat:"restaurant",type:"Fast food"};
+  if(tg.leisure==="park")return {cat:"activity",type:"Park"};
+  if(tg.leisure)return {cat:"activity",type:titleCase(tg.leisure.replace(/_/g," "))};
+  if(tg.tourism)return {cat:"activity",type:titleCase(tg.tourism.replace(/_/g," "))};
+  if(tg.amenity==="cinema")return {cat:"activity",type:"Cinema"};
+  if(tg.amenity==="arts_centre")return {cat:"activity",type:"Arts centre"};
+  return {cat:"activity",type:"Activity"};
+}
+async function fetchVenues(c,radius=1600){
+  const A=`(around:${radius},${c.lat},${c.lng})`;
+  const q=`[out:json][timeout:25];(`+
+    `node["amenity"~"^(cafe|restaurant|fast_food|cinema|arts_centre)$"]${A};`+
+    `node["shop"="mall"]${A};way["shop"="mall"]${A};`+
+    `node["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
+    `way["leisure"~"^(park|sports_centre|fitness_centre|bowling_alley|water_park)$"]${A};`+
+    `node["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
+    `way["tourism"~"^(museum|gallery|attraction|zoo|theme_park)$"]${A};`+
+  `);out center 100;`;
   try{
     const r=await fetch("https://overpass-api.de/api/interpreter",{method:"POST",body:"data="+encodeURIComponent(q)});
     if(!r.ok)throw 0;
     const d=await r.json();
     let out=(d.elements||[]).map(el=>{
-      const lat=el.lat??el.center?.lat, lng=el.lon??el.center?.lon, tg=el.tags||{};
+      const lat=el.lat??el.center?.lat,lng=el.lon??el.center?.lon,tg=el.tags||{};
       if(!lat||!tg.name)return null;
-      let type=tg.shop==="mall"?"Shopping mall":(tg.amenity==="cafe"?"Café":(tg.amenity==="fast_food"?"Fast food":"Restaurant"));
-      if(tg.cuisine)type+=" · "+tg.cuisine.split(";")[0].replace(/_/g," ");
-      // popularity proxy from metadata richness (OSM has no review scores)
-      let pop=3.4; ["website","opening_hours","phone","cuisine","stars","brand"].forEach(k=>{if(tg[k])pop+=0.28;});
+      const cls=classifyVenue(tg);let type=cls.type;
+      if((cls.cat==="restaurant"||cls.cat==="cafe")&&tg.cuisine)type+=" · "+titleCase(tg.cuisine.split(";")[0].replace(/_/g," "));
+      let pop=3.4;["website","opening_hours","phone","cuisine","stars","brand","wikidata"].forEach(k=>{if(tg[k])pop+=0.24;});
       if(tg.stars&&!isNaN(parseFloat(tg.stars)))pop=Math.min(5,parseFloat(tg.stars));
-      return {name:tg.name,type,lat,lng,pop:Math.min(5,+pop.toFixed(1))};
+      return {name:tg.name,type,cat:cls.cat,lat,lng,pop:Math.min(5,+pop.toFixed(1))};
     }).filter(Boolean);
-    // dedupe by name
-    const seen=new Set();out=out.filter(v=>{if(seen.has(v.name))return false;seen.add(v.name);return true;});
-    if(out.length)return out;
-    throw 0;
+    const seen=new Set();out=out.filter(v=>{const key=v.name+v.cat;if(seen.has(key))return false;seen.add(key);return true;});
+    if(out.length)return out;throw 0;
   }catch(e){
-    return FALLBACK_VENUES.map(v=>({...v})).filter(v=>haversine(c,v)<6);
+    return FALLBACK_VENUES.map(v=>({...v,cat:"mall"})).filter(v=>haversine(c,v)<6);
   }
 }
 
-/* ---------- fairness engine: grid search over candidate meeting points ---------- */
+/* ---------- fairness engine ---------- */
 function objective(times){
-  const total=times.reduce((a,b)=>a+b,0);
-  const worst=Math.max(...times);
-  const spread=worst-Math.min(...times);
-  if(strategy==="total")return total;
-  if(strategy==="worst")return worst;
-  return total*0.55 + worst*0.25 + spread*0.6; // balanced
+  const total=times.reduce((a,b)=>a+b,0),worst=Math.max(...times),spread=worst-Math.min(...times);
+  if(strategy==="total")return total;if(strategy==="worst")return worst;
+  return total*0.55+worst*0.25+spread*0.6;
 }
 function findMeetingZone(){
   const lats=people.map(p=>p.lat),lngs=people.map(p=>p.lng);
@@ -384,87 +390,83 @@ function findMeetingZone(){
 /* ---------- run ---------- */
 async function run(){
   if(people.length<2){setStatus("Add at least 2 participants.");return;}
-  $("#goBtn").disabled=true;
-  setStatus("Locating participants…");
-  // resolve any unresolved
+  $("#goBtn").disabled=true;setStatus("Locating participants…");
   for(const p of people){
     if(!p.resolved&&p.query){const r=await resolveOne(p.query);if(r){p.lat=r.lat;p.lng=r.lng;p.label=r.title;p.resolved=true;renderPeople();}}
   }
   const ready=people.filter(p=>p.resolved);
   if(ready.length<2){setStatus("Need at least 2 valid locations. Check the addresses.");$("#goBtn").disabled=false;return;}
+  if(ready.some(p=>!p.mode)){setStatus("Pick a transport mode for everyone.");$("#goBtn").disabled=false;return;}
 
   setStatus("Calculating the fairest meeting zone…");
-  const zone=findMeetingZone();
-  const center=zone.center;
+  const zone=findMeetingZone();const center=zone.center;
 
-  // per-person times: use real OSRM for drivers, estimates otherwise
   setStatus("Measuring real travel times…");
   const perPerson=[];
-  for(const p of ready){
-    let mins=estTime(haversine(p,center),p.mode), route=null, real=false, fare=null;
-    if(p.mode==="drive"){
-      const rt=await osrmRoute(p,center);
-      if(rt){mins=rt.duration;route=rt.coords;real=true;}
-    }else if(p.mode==="pt"){
-      const rt=await ptRoute(p,center);
-      if(rt){mins=rt.duration;real=true;if(rt.fare!=null)fare=rt.fare;}
-    }
+  for(let i=0;i<ready.length;i++){
+    const p=ready[i];
+    let mins=estTime(haversine(p,center),p.mode),route=null,real=false,fare=null;
+    if(p.mode==="drive"){const rt=await osrmRoute(p,center);if(rt){mins=rt.duration;route=rt.coords;real=true;}}
+    else if(p.mode==="pt"){const rt=await ptRoute(p,center);if(rt){mins=rt.duration;real=true;if(rt.fare!=null)fare=rt.fare;}}
     if(!route)route=[[p.lat,p.lng],[center.lat,center.lng]];
-    perPerson.push({...p,mins,route,real,fare});
+    perPerson.push({...p,name:(p.name||"").trim()||("Person "+(i+1)),mins,route,real,fare});
   }
 
-  setStatus("Finding venues nearby…");
+  setStatus("Naming the meeting zone…");
+  const areaLabel=await revGeocode(center);
+
+  setStatus("Finding places nearby…");
   const venuesRaw=await fetchVenues(center);
-  // score venues
-  const maxPop=5;
   const scored=venuesRaw.map(v=>{
     const ptimes=ready.map(p=>estTime(haversine(p,v),p.mode));
     const total=ptimes.reduce((a,b)=>a+b,0),worst=Math.max(...ptimes),spread=worst-Math.min(...ptimes);
-    const fairRaw=total*0.55+worst*0.25+spread*0.6;
-    return {...v,ptimes,total,worst,spread,fairRaw,distMid:haversine(center,v)};
+    return {...v,ptimes,worst,fairRaw:total*0.55+worst*0.25+spread*0.6,distMid:haversine(center,v)};
   });
-  const fairs=scored.map(s=>s.fairRaw),fMin=Math.min(...fairs),fMax=Math.max(...fairs);
-  scored.forEach(s=>{
-    const fairScore=fMax>fMin?(1-(s.fairRaw-fMin)/(fMax-fMin)):1; // 0..1 higher=fairer
-    s.score = fairScore*60 + (s.pop/maxPop)*25 + Math.max(0,(1-s.distMid/2))*15;
-  });
-  scored.sort((a,b)=>b.score-a.score);
-  const venues=scored.slice(0,8);
+  const fairs=scored.map(s=>s.fairRaw),fMin=Math.min(...fairs,0),fMax=Math.max(...fairs,1);
+  scored.forEach(s=>{const fairScore=fMax>fMin?(1-(s.fairRaw-fMin)/(fMax-fMin)):1;
+    s.score=fairScore*60+(s.pop/5)*25+Math.max(0,(1-s.distMid/2))*15;});
 
-  result={center,perPerson,venues,zone};
+  result={center,perPerson,venuesAll:scored,zone,areaLabel};
+  venueCat="all";applyVenueFilter();
   $("#goBtn").disabled=false;setStatus("");
-  renderResults();
-  updateHash();
+  renderResults();updateHash();
 }
 
-/* ---------- render results ---------- */
-async function reverseLabel(c){
-  try{
-    const url=`https://www.onemap.gov.sg/api/common/elastic/search?searchVal=${c.lat.toFixed(4)},${c.lng.toFixed(4)}&returnGeom=Y&getAddrDetails=Y&pageNum=1`;
-    // OneMap search isn't reverse-geocode; use nearest venue name instead
-  }catch(e){}
-  return null;
+function applyVenueFilter(){
+  if(!result)return;
+  let list=result.venuesAll.slice();
+  if(venueCat!=="all")list=list.filter(v=>v.cat===venueCat);
+  list.sort((a,b)=>b.score-a.score);
+  result.venues=list.slice(0,8);
 }
+
+/* ---------- render ---------- */
 function renderResults(){
   $("#ph").style.display="none";$("#map").style.display="block";$("#results").style.display="block";
-  const {center,perPerson,venues}=result;
+  const {center,perPerson}=result;
   const times=perPerson.map(p=>p.mins);
-  const total=times.reduce((a,b)=>a+b,0),worst=Math.max(...times),best=Math.min(...times),spread=worst-best;
-  const avg=total/times.length;
+  const total=times.reduce((a,b)=>a+b,0),worst=Math.max(...times),best=Math.min(...times),spread=worst-best,avg=total/times.length;
   const fairnessPct=Math.max(0,Math.min(100,Math.round(100-(spread/Math.max(worst,1))*100)));
-  const areaName=venues[0]?venues[0].name+" area":"meeting zone";
+  const areaName=result.areaLabel||(result.venues[0]?result.venues[0].name:nearestSectorName(center));
+
+  const ptP=perPerson.filter(p=>p.mode==="pt"),ptLive=ptP.filter(p=>p.real).length;
+  let srcNote="";
+  if(ptP.length){srcNote=ptLive===ptP.length
+    ?`<div class="srcnote ok">🚇 Public-transport times are live from OneMap</div>`
+    :ptLive>0?`<div class="srcnote warn">🚇 ${ptLive}/${ptP.length} public-transport trips live · the rest estimated (proxy unreachable)</div>`
+    :`<div class="srcnote warn">⚠️ Public transport is using estimates — the OneMap proxy couldn't be reached (check the Worker's allowed origin, or you may be in the chat preview)</div>`;}
 
   $("#summary").innerHTML=`
-    <div class="area">📍 Fairest meeting zone: near ${areaName}</div>
+    <div class="area">📍 Fairest meeting zone: ${areaName}</div>
     <div class="metrics">
       <div class="metric"><div class="v">${fmtMin(avg)}</div><div class="l">Avg trip</div></div>
       <div class="metric"><div class="v">${fmtMin(worst)}</div><div class="l">Longest trip</div></div>
       <div class="metric"><div class="v">${fmtMin(total)}</div><div class="l">Total time</div></div>
       <div class="metric"><div class="v">${fairnessPct}%</div><div class="l">Fairness</div></div>
     </div>
-    <div class="fairbar"><i style="width:${fairnessPct}%"></i></div>`;
+    <div class="fairbar"><i style="width:${fairnessPct}%"></i></div>
+    ${srcNote}`;
 
-  // per-person cards (color by relative time)
   $("#ptimes").innerHTML=perPerson.map(p=>{
     const ratio=worst>best?(p.mins-best)/(worst-best):0;
     const col=ratio<.34?"var(--good)":ratio<.67?"var(--warn)":"var(--bad)";
@@ -473,39 +475,37 @@ function renderResults(){
         <span class="tag" style="background:${col}">${p.mins>=worst-0.5?"furthest":ratio<.34?"closest":""}</span></div>
       <div class="mn" style="color:${col}">${fmtMin(p.mins)}</div>
       <div class="md">${MODES[p.mode].icon} ${MODES[p.mode].label}${p.real?" · live":" · est."}${p.fare!=null?" · $"+p.fare.toFixed(2):""}</div>
-    </div>`;
-  }).join("");
+    </div>`;}).join("");
 
-  // venues
-  $("#venues").innerHTML=venues.map((v,i)=>{
+  document.querySelectorAll("#catbar .catchip").forEach(c=>c.classList.toggle("on",c.dataset.c===venueCat));
+  renderVenueList();
+  drawMap(true);
+}
+
+function renderVenueList(){
+  const venues=result.venues,el=$("#venues");
+  if(!venues.length){el.innerHTML=`<div style="color:var(--muted);font-size:13px;padding:8px">No ${CAT_LABEL[venueCat]} found within walking range of the meeting zone.</div>`;return;}
+  el.innerHTML=venues.map((v,i)=>{
     const stars="★".repeat(Math.round(v.pop))+"☆".repeat(5-Math.round(v.pop));
-    const vWorst=Math.max(...v.ptimes);
     return `<div class="venue" data-vi="${i}">
       <div class="vrank">${i+1}</div>
       <div class="vmain">
         <div class="vname">${v.name}</div>
-        <div class="vmeta">${v.type} · ${(v.distMid*1000).toFixed(0)} m from zone · longest trip ${fmtMin(vWorst)}</div>
+        <div class="vmeta">${v.type} · ${(v.distMid*1000).toFixed(0)} m from zone · longest trip ${fmtMin(Math.max(...v.ptimes))}</div>
       </div>
       <div class="vstats">
         <div class="b"><div class="v stars">${stars}</div><div class="l">${v.pop.toFixed(1)} popularity</div></div>
         <div class="b"><div class="v">${Math.round(v.score)}</div><div class="l">Match</div></div>
-      </div>
-    </div>`;
-  }).join("");
-  document.querySelectorAll(".venue").forEach(el=>el.onclick=()=>{
-    const v=venues[+el.dataset.vi];map.setView([v.lat,v.lng],15);layers.venueMk[+el.dataset.vi]?.openPopup();});
-
-  drawMap();
+      </div></div>`;}).join("");
+  document.querySelectorAll(".venue").forEach(elm=>elm.onclick=()=>{const v=venues[+elm.dataset.vi];if(map){map.setView([v.lat,v.lng],16);layers.venueMk&&layers.venueMk[+elm.dataset.vi]&&layers.venueMk[+elm.dataset.vi].openPopup();}});
 }
 
 /* ---------- map ---------- */
 function ensureMap(){
   if(map)return;
-  const holder=document.getElementById("map");
-  holder.style.background="#e8edf1";
+  const holder=document.getElementById("map");holder.style.background="#e8edf1";
   map=L.map("map",{zoomControl:true}).setView(SG_CENTER,11);
-  const tiles=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{
-    attribution:'© OpenStreetMap contributors',maxZoom:19,minZoom:10});
+  const tiles=L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png",{attribution:'© OpenStreetMap contributors',maxZoom:19,minZoom:10});
   let errs=0;
   tiles.on("tileerror",()=>{errs++;if(errs>3&&!map._note){
     const c=L.control({position:"topright"});
@@ -516,40 +516,26 @@ function ensureMap(){
   tiles.addTo(map);
 }
 function clearLayers(){for(const k in layers){const l=layers[k];if(Array.isArray(l))l.forEach(x=>x&&map.removeLayer(x));else if(l)map.removeLayer(l);}layers={};}
-function drawMap(){
+function drawMap(refit){
   ensureMap();clearLayers();
-  const {center,perPerson,venues}=result;
-  const grp=[];
-  // rings
-  if(showRings){
-    layers.rings=[];
-    [[10,5000,"≈10 min drive"],[20,10000,"≈20 min drive"]].forEach(([m,rad,lbl])=>{
-      const c=L.circle([center.lat,center.lng],{radius:rad,color:"#008489",weight:1.2,opacity:.6,fillOpacity:.05,dashArray:"5 6"}).addTo(map);
-      layers.rings.push(c);
-    });
-  }
-  // routes + participant markers
+  const {center,perPerson,venues}=result;const grp=[];
+  if(showRings){layers.rings=[];[5000,10000].forEach(rad=>{
+    layers.rings.push(L.circle([center.lat,center.lng],{radius:rad,color:"#008489",weight:1.2,opacity:.6,fillOpacity:.05,dashArray:"5 6"}).addTo(map));});}
   layers.routes=[];layers.pMk=[];
   const times=perPerson.map(p=>p.mins),worst=Math.max(...times),best=Math.min(...times);
   perPerson.forEach(p=>{
-    if(showRoutes){
-      const ratio=worst>best?(p.mins-best)/(worst-best):0;
+    if(showRoutes){const ratio=worst>best?(p.mins-best)/(worst-best):0;
       const col=ratio<.34?"#16A34A":ratio<.67?"#F59E0B":"#DC2626";
-      const pl=L.polyline(p.route,{color:col,weight:p.real?4:2.5,opacity:.75,dashArray:p.real?null:"4 6"}).addTo(map);
-      layers.routes.push(pl);
-    }
+      layers.routes.push(L.polyline(p.route,{color:col,weight:p.real?4:2.5,opacity:.75,dashArray:p.real?null:"4 6"}).addTo(map));}
     const mk=L.marker([p.lat,p.lng],{icon:L.divIcon({className:"",html:`<div style="background:${p.color};width:26px;height:26px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3)"></div>`,iconSize:[26,26],iconAnchor:[13,24]})})
       .addTo(map).bindPopup(`<b>${p.name}</b><br>${p.label||p.query}<br>${MODES[p.mode].icon} ${fmtMin(p.mins)}`);
-    layers.pMk.push(mk);grp.push([p.lat,p.lng]);
-  });
-  // meeting point
+    layers.pMk.push(mk);grp.push([p.lat,p.lng]);});
   layers.center=L.marker([center.lat,center.lng],{icon:L.divIcon({className:"",html:`<div style="background:#FF5A5F;color:#fff;width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:3px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35);font-size:16px">◎</div>`,iconSize:[34,34],iconAnchor:[17,17]})})
-    .addTo(map).bindPopup("<b>Fairest meeting zone</b>");
+    .addTo(map).bindPopup(`<b>Fairest meeting zone</b><br>${result.areaLabel||""}`);
   grp.push([center.lat,center.lng]);
-  // venues
   layers.venueMk=venues.map((v,i)=>L.circleMarker([v.lat,v.lng],{radius:6,color:"#fff",weight:2,fillColor:"#222",fillOpacity:1})
     .addTo(map).bindPopup(`<b>${i+1}. ${v.name}</b><br>${v.type}<br>★ ${v.pop.toFixed(1)} · match ${Math.round(v.score)}`));
-  map.fitBounds(grp,{padding:[50,50],maxZoom:14});
+  if(refit&&grp.length)map.fitBounds(grp,{padding:[50,50],maxZoom:15});
   setTimeout(()=>map.invalidateSize(),60);
 }
 
@@ -557,7 +543,7 @@ function drawMap(){
 function addPerson(data){
   if(people.length>=10)return;
   const i=people.length;
-  people.push(Object.assign({id:++pid,name:"Person "+String.fromCharCode(65+i),query:"",mode:"drive",lat:null,lng:null,label:"",resolved:false,color:COLORS[i%COLORS.length]},data||{}));
+  people.push(Object.assign({id:++pid,name:"",query:"",mode:"",lat:null,lng:null,label:"",resolved:false,color:COLORS[i%COLORS.length]},data||{}));
   renderPeople();
 }
 function removePerson(id){people=people.filter(p=>p.id!==id);people.forEach((p,i)=>p.color=COLORS[i%COLORS.length]);renderPeople();}
@@ -568,7 +554,7 @@ function renderPeople(){
     el.innerHTML=`
       <div class="toprow">
         <span class="swatch" style="background:${p.color}"></span>
-        <input class="namein" value="${p.name.replace(/"/g,'&quot;')}" data-f="name" placeholder="Name">
+        <input class="namein" value="${(p.name||'').replace(/"/g,'&quot;')}" data-f="name" placeholder="Name">
         ${people.length>2?'<button class="rm" title="Remove">×</button>':''}
       </div>
       <div class="addrwrap">
@@ -578,59 +564,51 @@ function renderPeople(){
       ${p.resolved?`<div class="resolved">✓ ${p.label||p.query}</div>`:`<div class="unresolved">Not located yet</div>`}
       <div class="moderow">
         <select data-f="mode">
+          <option value="" ${!p.mode?"selected":""} disabled>Transport mode</option>
           ${Object.entries(MODES).map(([k,m])=>`<option value="${k}" ${p.mode===k?"selected":""}>${m.icon} ${m.label}</option>`).join("")}
         </select>
       </div>`;
-    // bindings
     el.querySelector('[data-f="name"]').oninput=e=>p.name=e.target.value;
     el.querySelector('[data-f="mode"]').onchange=e=>p.mode=e.target.value;
     const rm=el.querySelector(".rm");if(rm)rm.onclick=()=>removePerson(p.id);
     const qin=el.querySelector('[data-f="query"]');const ac=el.querySelector(".ac");
     const doSearch=debounce(async()=>{
-      const q=qin.value.trim();
-      const r=await onemapSearch(q);
-      // auto-resolve a complete 6-digit postal code without needing a click
-      if(/^\d{6}$/.test(q)&&r.length){
-        const x=r[0];p.query=q;p.label=x.title;p.lat=x.lat;p.lng=x.lng;p.resolved=true;
-        ac.style.display="none";renderPeople();return;
-      }
+      const q=qin.value.trim();const r=await onemapSearch(q);
+      if(/^\d{6}$/.test(q)&&r.length){const x=r[0];p.query=q;p.label=x.title;p.lat=x.lat;p.lng=x.lng;p.resolved=true;ac.style.display="none";renderPeople();return;}
       if(!r.length||document.activeElement!==qin){ac.style.display="none";return;}
       ac.innerHTML=r.map((x,k)=>`<div data-k="${k}"><div class="t">${x.title}</div><div class="s">${x.subtitle||""}</div></div>`).join("");
       ac.style.display="block";
-      ac.querySelectorAll("div[data-k]").forEach(d=>d.onclick=()=>{
-        const x=r[+d.dataset.k];p.query=x.title;p.label=x.title;p.lat=x.lat;p.lng=x.lng;p.resolved=true;
-        ac.style.display="none";renderPeople();});
+      ac.querySelectorAll("div[data-k]").forEach(d=>d.onclick=()=>{const x=r[+d.dataset.k];p.query=x.title;p.label=x.title;p.lat=x.lat;p.lng=x.lng;p.resolved=true;ac.style.display="none";renderPeople();});
     },280);
     qin.oninput=e=>{p.query=e.target.value;p.resolved=false;doSearch();};
-    qin.onblur=()=>setTimeout(async()=>{
-      ac.style.display="none";
-      if(!p.resolved&&p.query&&p.query.trim().length>=2){
-        const x=await resolveOne(p.query);
-        if(x){p.lat=x.lat;p.lng=x.lng;p.label=x.title;p.resolved=true;renderPeople();}
-      }
-    },200);
+    qin.onblur=()=>setTimeout(async()=>{ac.style.display="none";
+      if(!p.resolved&&p.query&&p.query.trim().length>=2){const x=await resolveOne(p.query);if(x){p.lat=x.lat;p.lng=x.lng;p.label=x.title;p.resolved=true;renderPeople();}}},200);
     wrap.appendChild(el);
   });
   $("#addBtn").disabled=people.length>=10;
 }
 function setStatus(t){$("#status").textContent=t;}
 
-/* ---------- chips / strategy / share ---------- */
+/* ---------- toggles / category / share ---------- */
 $("#addBtn").onclick=()=>addPerson();
 $("#goBtn").onclick=run;
-$("#ringsChip").onclick=function(){showRings=!showRings;this.classList.toggle("on",showRings);if(result)drawMap();};
-$("#routesChip").onclick=function(){showRoutes=!showRoutes;this.classList.toggle("on",showRoutes);if(result)drawMap();};
-strategy="balanced"; // balanced fairness is the only mode
+$("#ringsChip").onclick=function(){showRings=!showRings;this.classList.toggle("on",showRings);if(result)drawMap(false);};
+$("#routesChip").onclick=function(){showRoutes=!showRoutes;this.classList.toggle("on",showRoutes);if(result)drawMap(false);};
+strategy="balanced";
+$("#catbar").addEventListener("click",e=>{
+  const chip=e.target.closest(".catchip");if(!chip||!result)return;
+  venueCat=chip.dataset.c;
+  document.querySelectorAll("#catbar .catchip").forEach(c=>c.classList.toggle("on",c===chip));
+  applyVenueFilter();renderVenueList();drawMap(false);
+});
 
-/* ---------- share link (URL hash, no backend) ---------- */
 function updateHash(){
-  const data={s:strategy,p:people.filter(p=>p.resolved).map(p=>({n:p.name,q:p.query,m:p.mode,a:+p.lat.toFixed(5),o:+p.lng.toFixed(5),l:p.label}))};
+  const data={p:people.filter(p=>p.resolved).map(p=>({n:p.name,q:p.query,m:p.mode,a:+p.lat.toFixed(5),o:+p.lng.toFixed(5),l:p.label}))};
   try{location.hash="m="+btoa(encodeURIComponent(JSON.stringify(data)));}catch(e){}
 }
 $("#shareBtn").onclick=()=>{
   if(!result){toast("Run a search first to create a link.");return;}
-  updateHash();
-  const url=location.href;
+  updateHash();const url=location.href;
   if(navigator.clipboard){navigator.clipboard.writeText(url).then(()=>toast("Link copied — anyone can open it 🔗")).catch(()=>toast("Copy this URL from the address bar"));}
   else toast("Copy the URL from the address bar");
 };
@@ -638,26 +616,16 @@ async function loadHash(){
   const m=location.hash.match(/m=([^&]+)/);if(!m)return false;
   try{
     const data=JSON.parse(decodeURIComponent(atob(m[1])));
-    strategy=data.s||"balanced";
-    document.querySelectorAll('#strat label').forEach(l=>{const on=l.dataset.s===strategy;l.classList.toggle("active",on);l.querySelector("input").checked=on;});
-    people=data.p.map((x,i)=>({id:++pid,name:x.n,query:x.q,mode:x.m,lat:x.a,lng:x.o,label:x.l,resolved:true,color:COLORS[i%COLORS.length]}));
+    people=data.p.map((x,i)=>({id:++pid,name:x.n||"",query:x.q,mode:x.m||"",lat:x.a,lng:x.o,label:x.l,resolved:true,color:COLORS[i%COLORS.length]}));
     renderPeople();
-    if(people.length>=2){await run();}
+    if(people.length>=2)await run();
     return true;
   }catch(e){return false;}
 }
 
-/* ---------- init ---------- */
+/* ---------- init: two BLANK entries (no auto-populate) ---------- */
 (async function init(){
   const loaded=await loadHash();
-  if(!loaded){
-    // seed with the example from the brief
-    addPerson({name:"Aisha",query:"238801"});
-    addPerson({name:"Ben",query:"569880"});
-    addPerson({name:"Chen",query:"528833"});
-    // pre-resolve examples via OneMap (fallback if blocked)
-    for(const p of people){const r=await resolveOne(p.query);if(r){p.lat=r.lat;p.lng=r.lng;p.label=r.title;p.resolved=true;}}
-    renderPeople();
-  }
+  if(!loaded){addPerson();addPerson();}
 })();
 </script>
