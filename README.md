@@ -32,8 +32,12 @@ This matters because Singapore's PT network is uneven — a purely distance-base
 
 **Version History**
 v2: lean version: 6 candidates, 4-direction refinement, max 2 rounds. Quickest, but the lightest search
+
 v3: 8 candidates, 8-direction refinement, runs every time. Best at finding the fairest spot, but slowest — and it has no cache and no skip-when-balanced shortcut
+
 v4: 7 candidates, 8-direction refinement, but with the two free speed wins: a per-search cache and skip refinement when the result is already balanced
+
 v5: refine shopping mall to ignore departmental stores
+
 v6 (wip): changes to categories (dine-in for both restaurants/fast food/cafes, filter out takeaways)
 change activities category definition to entertainment and rank parks last
