@@ -401,8 +401,14 @@ async function realLeg(p,c){
   if(p.mode==="pt"){const rt=await ptRoute(p,c);if(rt)return{mins:rt.duration,real:true,fare:rt.fare};}
   return {mins:estTime(haversine(p,c),p.mode),real:false};
 }
+// limited-concurrency map — OneMap throttles bursts of token/routing calls, so cap simultaneous requests
+async function pool(items,limit,fn){
+  const res=new Array(items.length);let i=0;
+  async function w(){while(i<items.length){const idx=i++;res[idx]=await fn(items[idx]);}}
+  await Promise.all(Array.from({length:Math.min(limit,items.length||1)},w));
+  return res;
+}
 // Stage 1: shortlist by estimate. Stage 2: score on LIVE time. Stage 3: refine ONLY if lopsided.
-// "middle-minus" tuning: 7 candidates, full 8-direction probe, but fewer rounds + higher skip threshold.
 async function findFairZone(ppl){
   const cache=new Map(); // avoid repeat live lookups for the same person+area within one search
   async function leg(p,c){
@@ -419,8 +425,10 @@ async function findFairZone(ppl){
   const cands=coarseCandidates(ppl);
   const K=Math.max(3,Math.min(7,Math.floor(22/ppl.length)));
   const shortlist=diverseShortlist(cands,K,2.0);
-  const evals=await Promise.all(shortlist.map(c=>spot(c.c)));
-  evals.sort((a,b)=>a.score-b.score);
+  // warm the proxy token with ONE call first, then evaluate the rest with limited concurrency
+  const first=await spot(shortlist[0].c);
+  const rest=await pool(shortlist.slice(1),3,c=>spot(c.c));
+  const evals=[first,...rest].sort((a,b)=>a.score-b.score);
   let best=evals[0];
   // adaptive refinement: skip when already balanced; polish only when lopsided
   const spread=Math.max(...best.times)-Math.min(...best.times);
@@ -429,8 +437,8 @@ async function findFairZone(ppl){
     let step=0.018; // ~2 km
     const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
     for(let it=0;it<maxIters;it++){
-      const ne=await Promise.all(dirs.map(([dy,dx])=>spot({lat:best.c.lat+dy*step,lng:best.c.lng+dx*step})));
-      ne.sort((a,b)=>a.score-b.score);
+      const pts=dirs.map(([dy,dx])=>({lat:best.c.lat+dy*step,lng:best.c.lng+dx*step}));
+      const ne=(await pool(pts,3,c=>spot(c))).sort((a,b)=>a.score-b.score);
       if(ne[0].score<best.score-0.01)best=ne[0];else step/=2;
     }
   }
