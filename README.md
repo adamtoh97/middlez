@@ -3,6 +3,7 @@
 **Find the fairest place to meet.** Middlez helps a group pick a meeting spot in Singapore based on *travel time*, not geographic distance — so no one gets stuck with the longest trip.
 
 🔗 **Live:** https://adamtoh97.github.io/middlez/v5/
+
 v6 is wip (pending categorisation)
 
 Designed by **Adam Toh**.
