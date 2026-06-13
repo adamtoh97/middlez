@@ -134,7 +134,7 @@
       <div class="panel">
         <div class="pbody" style="padding-top:18px">
           <button class="go" id="goBtn">Find the fairest spot</button>
-          <div class="status" id="status">Balanced fairness: low total time + a small gap between people.</div>
+          <div class="status" id="status"></div>
         </div>
       </div>
     </div>
@@ -399,20 +399,31 @@ async function realLeg(p,c){
   if(p.mode==="pt"){const rt=await ptRoute(p,c);if(rt)return{mins:rt.duration,real:true,fare:rt.fare};}
   return {mins:estTime(haversine(p,c),p.mode),real:false};
 }
-// Stage 1: shortlist promising spots by estimate. Stage 2: score finalists on REAL travel time.
+async function scoreSpot(ppl,c){
+  const legs=await Promise.all(ppl.map(p=>realLeg(p,c)));
+  const times=legs.map(l=>l.mins);
+  let pen=0;legs.forEach((l,i)=>{if((ppl[i].mode==="drive"||ppl[i].mode==="pt")&&!l.real)pen+=30;});
+  return {c,legs,score:objective(times)+pen};
+}
+// Stage 1: shortlist spots by estimate. Stage 2: score finalists on LIVE time. Stage 3: local refine.
 async function findFairZone(ppl){
   const cands=coarseCandidates(ppl);
   const K=Math.max(3,Math.min(8,Math.floor(24/ppl.length)));
   const shortlist=diverseShortlist(cands,K,2.0);
-  const evals=await Promise.all(shortlist.map(async cand=>{
-    const legs=await Promise.all(ppl.map(p=>realLeg(p,cand.c)));
-    const times=legs.map(l=>l.mins);
-    // penalise spots where a drive/pt leg couldn't be routed (e.g. unreachable point)
-    let pen=0;legs.forEach((l,i)=>{if((ppl[i].mode==="drive"||ppl[i].mode==="pt")&&!l.real)pen+=30;});
-    return {c:cand.c,legs,score:objective(times)+pen};
-  }));
+  const evals=await Promise.all(shortlist.map(c=>scoreSpot(ppl,c.c)));
   evals.sort((a,b)=>a.score-b.score);
-  return evals[0];
+  let best=evals[0];
+  // pattern search: probe around the winner with live times, step toward the fairer spot, zoom in
+  const maxIters=ppl.length<=3?3:ppl.length<=5?2:1;
+  let step=0.018; // ~2 km
+  const dirs=[[1,0],[-1,0],[0,1],[0,-1],[1,1],[1,-1],[-1,1],[-1,-1]];
+  for(let it=0;it<maxIters;it++){
+    const neigh=dirs.map(([dy,dx])=>({lat:best.c.lat+dy*step,lng:best.c.lng+dx*step}));
+    const ne=await Promise.all(neigh.map(c=>scoreSpot(ppl,c)));
+    ne.sort((a,b)=>a.score-b.score);
+    if(ne[0].score<best.score-0.01)best=ne[0];else step/=2;
+  }
+  return best;
 }
 
 /* ---------- run ---------- */
@@ -426,7 +437,7 @@ async function run(){
   if(ready.length<2){setStatus("Need at least 2 valid locations. Check the addresses.");$("#goBtn").disabled=false;return;}
   if(ready.some(p=>!p.mode)){setStatus("Pick a transport mode for everyone.");$("#goBtn").disabled=false;return;}
 
-  setStatus("Comparing real travel times across candidate spots…");
+  setStatus("Comparing live travel times across participants…");
   const zone=await findFairZone(ready);const center=zone.c;
   const perPerson=ready.map((p,i)=>{
     const leg=zone.legs[i];
