@@ -55,7 +55,8 @@ LT
 1. Outing planner (Purpose-Based Recommendations)
 2. AI Venue Concierge
 3. Date Planner (matchmaking?)
-4. Holiday Planner
-5. Carpool Optimizer
-6. Weather-Aware Meeting Planner
-7. Live Weekend Activity Finder
+4. Home Location Optimizer
+5. Office Location Optimizer
+6. Carpool Optimizer
+7. Weather-Aware Meeting Planner
+8. Live Weekend Activity Finder
