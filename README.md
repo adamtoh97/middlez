@@ -43,6 +43,7 @@ v6 (wip): changes to categories (dine-in for both restaurants/fast food/cafes, f
 change activities category definition to entertainment and rank parks last
 
 **Roadmap**
+
 ST
 1. Improve Fairness Score optimisation to understand rankings instantly
 2. Better Loading Experience
