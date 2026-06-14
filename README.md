@@ -31,6 +31,7 @@ Picking the spot is a two-stage process so it's both accurate and fast:
 This matters because Singapore's PT network is uneven — a purely distance-based optimiser would happily suggest a spot that's a quick drive for one person but a punishing multi-transfer trip for another. Scoring finalists on live times avoids that.
 
 **Version History**
+
 v2: lean version: 6 candidates, 4-direction refinement, max 2 rounds. Quickest, but the lightest search
 
 v3: 8 candidates, 8-direction refinement, runs every time. Best at finding the fairest spot, but slowest — and it has no cache and no skip-when-balanced shortcut
