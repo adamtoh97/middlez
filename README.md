@@ -41,3 +41,19 @@ v5: refine shopping mall to ignore departmental stores
 
 v6 (wip): changes to categories (dine-in for both restaurants/fast food/cafes, filter out takeaways)
 change activities category definition to entertainment and rank parks last
+
+**Roadmap**
+ST
+1. Improve Fairness Score optimisation to understand rankings instantly
+2. Better Loading Experience
+3. Share Link + Voting
+4. Saved Groups
+
+LT
+1. Outing planner (Purpose-Based Recommendations)
+2. AI Venue Concierge
+3. Date Planner (matchmaking?)
+4. Holiday Planner
+5. Carpool Optimizer
+6. Weather-Aware Meeting Planner
+7. Live Weekend Activity Finder
